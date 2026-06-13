@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F3958B80-F33C-4058-A7AB-1E0D5484989C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetGuardGT.Api", "src\NetGuardGT.Api\NetGuardGT.Api.csproj", "{D40A87EB-DEA7-460E-A250-C52816A8CC30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{49C5D327-3218-4D7C-A8E8-B8D2286B532F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetGuardGT.Tests", "tests\NetGuardGT.Tests\NetGuardGT.Tests.csproj", "{533A54A8-7A3B-425E-A482-317F089AF3B7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D40A87EB-DEA7-460E-A250-C52816A8CC30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D40A87EB-DEA7-460E-A250-C52816A8CC30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D40A87EB-DEA7-460E-A250-C52816A8CC30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D40A87EB-DEA7-460E-A250-C52816A8CC30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{533A54A8-7A3B-425E-A482-317F089AF3B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{533A54A8-7A3B-425E-A482-317F089AF3B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{533A54A8-7A3B-425E-A482-317F089AF3B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{533A54A8-7A3B-425E-A482-317F089AF3B7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D40A87EB-DEA7-460E-A250-C52816A8CC30} = {F3958B80-F33C-4058-A7AB-1E0D5484989C}
+		{533A54A8-7A3B-425E-A482-317F089AF3B7} = {49C5D327-3218-4D7C-A8E8-B8D2286B532F}
+	EndGlobalSection
+EndGlobal

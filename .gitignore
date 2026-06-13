@@ -1,0 +1,20 @@
+# Artefactos de compilación de .NET
+bin/
+obj/
+out/
+publish/
+
+# Base de datos SQLite generada en tiempo de ejecución
+*.db
+*.db-shm
+*.db-wal
+
+# Archivos de IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Varios
+*.log

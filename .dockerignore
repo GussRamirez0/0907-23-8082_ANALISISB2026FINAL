@@ -1,0 +1,12 @@
+# Evita copiar artefactos locales al contexto de build de Docker
+**/bin/
+**/obj/
+**/.vs/
+**/.git/
+**/.gitignore
+tests/
+*.user
+*.db
+*.db-shm
+*.db-wal
+README.md

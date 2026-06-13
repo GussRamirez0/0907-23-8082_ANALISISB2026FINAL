@@ -1,11 +1,15 @@
 # NetGuard GT — API de Gestión de Incidentes de Red
-
+LUIS GUSTAVO RAMIREZ BERGANZA 
+0907-23-8082
 Prototipo de **API REST** para gestionar los incidentes de red de **NetGuard GT** (proveedor de
 telecomunicaciones). Reemplaza el manejo actual con Excel y llamadas por un flujo controlado:
 registro de incidentes con **SLA automático**, asignación a técnicos con **reglas de negocio**,
 **historial de cambios**, **escalamiento automático** y **reportes de cumplimiento de SLA**.
 
 > Proyecto académico — **Análisis de Sistemas I**. Desarrollado en **C# / .NET 8**.
+
+
+RENDER= https://zero907-23-8082-analisisb2026final.onrender.com
 
 ---
 

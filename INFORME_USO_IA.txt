@@ -1,0 +1,194 @@
+==============================================================================
+INFORME DE UTILIZACION DE INTELIGENCIA ARTIFICIAL
+==============================================================================
+
+Proyecto:     API REST de Gestion de Incidentes de Red - NetGuard GT
+Curso:        Analisis de Sistemas I - Examen Final
+Estudiante:   Luis Gustavo Ramirez Berganza
+Carne:        0907-23-8082
+Fecha:        13 de junio de 2026
+Repositorio:  0907-23-8082_ANALISISB2026FINAL
+
+------------------------------------------------------------------------------
+1. INTRODUCCION
+------------------------------------------------------------------------------
+Para resolver este examen utilice dos herramientas de inteligencia artificial
+de forma complementaria:
+
+- Claude (claude.ai) como asistente de analisis y planificacion: para
+  interpretar el enunciado, redactar las historias de usuario, disenar el
+  prompt tecnico, verificar el proyecto y guiarme en el despliegue.
+
+- Claude Code como asistente de desarrollo: para generar el prototipo de API
+  REST en C# a partir de un prompt detallado, incluyendo modelos, logica de
+  negocio, pruebas unitarias y los archivos de despliegue.
+
+Mi objetivo no fue que la IA "hiciera el examen por mi", sino usarla como un
+par tecnico al que yo dirijo, reviso y corrijo. Las decisiones de que construir,
+como estructurarlo y que validar fueron mias; la IA acelero la escritura del
+codigo y la documentacion.
+
+------------------------------------------------------------------------------
+2. PROCESO DE TRABAJO
+------------------------------------------------------------------------------
+Trabaje en cuatro fases:
+
+1. Analisis del enunciado. Subi la foto del examen a Claude y le pedi que
+   extrajera las reglas de negocio y los entregables. Esto me sirvio para no
+   dejar ningun requisito fuera.
+
+2. Historias de usuario. Con las reglas claras, pedi redactar 12 historias en
+   formato Como/Quiero/Para con criterios de aceptacion medibles, asegurando
+   que cubrieran las 8 reglas.
+
+3. Generacion del prototipo. Redacte (con apoyo de Claude) un prompt tecnico
+   exhaustivo y se lo entregue a Claude Code, que construyo el proyecto completo
+   en C# / .NET 8.
+
+4. Verificacion y despliegue. Volvi a Claude para revisar que el proyecto
+   estuviera listo para Render, corregir errores de Git y desplegar el servicio.
+   La API quedo en linea y probable via Swagger.
+
+------------------------------------------------------------------------------
+3. PROMPTS ENVIADOS
+------------------------------------------------------------------------------
+
+PROMPT 1 - Analisis del enunciado
+"Tengo que hacer este ejercicio y me gustaria hacerlo con C#. Lee bien el
+ejercicio para hacerlo bien, paso a paso, las historias de usuario en un
+documento de texto."
+Proposito: que la IA leyera la imagen del examen y me ayudara a extraer las
+reglas de negocio y a redactar las historias de usuario sin omitir requisitos.
+
+PROMPT 2 - Generacion del prototipo (prompt tecnico para Claude Code)
+Este fue el prompt principal y mas extenso. Le defini el rol, el stack
+obligatorio, el contexto del negocio, los modelos, las 8 reglas de negocio,
+los endpoints, los datos de prueba, las pruebas unitarias requeridas y la
+configuracion de despliegue. El texto completo esta en el Anexo A.
+Proposito: generar el prototipo funcional completo, con la logica de negocio en
+la capa de Services, pruebas con xUnit y archivos listos para Render.
+
+PROMPT 3 - Verificacion para despliegue
+"Esta fue la API que me dieron al prompt; ahora me falta subirlo a Render.
+Verifica que falta."
+Proposito: confirmar que el Dockerfile, el manejo del puerto (variable PORT) y
+el .gitignore estuvieran correctos antes de publicar.
+
+PROMPT 4 - Apoyo en Git y Render
+Consultas durante el push a GitHub (un error al intentar subir) y durante la
+creacion del Web Service en Render (que opcion seleccionar en cada pantalla).
+Proposito: resolver problemas concretos del proceso de despliegue.
+
+------------------------------------------------------------------------------
+4. CORRECCIONES E ITERACIONES REALIZADAS
+------------------------------------------------------------------------------
+El proceso no fue de un solo intento perfecto; hubo varias correcciones,
+algunas hechas por la IA y otras por mi:
+
+1. Autocorreccion de Claude Code en la verificacion end-to-end. Al intentar
+   levantar la API y probarla con un script de PowerShell, el entorno bloqueo
+   el comando porque combinaba una limpieza de archivos con continuaciones de
+   linea. Claude Code lo detecto, simplifico el script y volvio a ejecutarlo
+   con exito. Esto muestra que la IA verifico su propio trabajo.
+
+2. Fijar la version de .NET. El entorno tenia instalado .NET 8 y .NET 9 a la
+   vez. Para garantizar que el proyecto compilara contra .NET 8 (como exige el
+   examen) se anadio un global.json que fija el SDK. Fue una decision preventiva.
+
+3. Error al subir a GitHub (correccion mia). Al hacer el primer commit escribi
+   "got commit" en lugar de "git commit", por lo que el push fallaba con
+   "src refspec main does not match any". Identifique el error tipografico, hice
+   el commit correctamente y el push funciono.
+
+4. Interpretacion del endpoint raiz en Swagger. En Swagger aparecia un GET /
+   que parecia "vacio". Verifique que no era un error: es una redireccion
+   (/ -> /swagger) puesta a proposito para abrir la documentacion directamente.
+   No requeria cambio.
+
+5. Definicion de los tiempos de SLA. El enunciado dice que el tiempo de
+   resolucion depende de la severidad pero no da valores. Defini una tabla
+   propia (Critico=1h, Urgente=2h, Alta=4h, Media=8h, Baja=24h) y la deje
+   centralizada para poder ajustarla facilmente.
+
+------------------------------------------------------------------------------
+5. REFLEXION
+------------------------------------------------------------------------------
+Lo que funciono bien. Entregar a Claude Code un prompt muy detallado -con el
+stack, las reglas de negocio numeradas y los endpoints exactos- produjo un
+resultado mucho mas cercano a lo que necesitaba que si hubiera pedido algo
+generico. La estructura en capas, los DTOs, el middleware de errores y las 20
+pruebas unitarias salieron coherentes con lo solicitado. La IA tambien documento
+sus decisiones tecnicas, lo que me ayudo a entender el codigo en lugar de solo
+copiarlo.
+
+Lo que requirio criterio humano. La IA no decide por si sola los requisitos: yo
+tuve que leer el examen, traducir las reglas de negocio a instrucciones claras y
+revisar que el resultado las cumpliera. Detalles como el error de Git, los
+valores de SLA o entender por que un endpoint se veia "vacio" dependieron de mi
+revision. Si hubiera aceptado todo sin verificar, podria haber entregado algo
+incorrecto.
+
+Limitaciones que reconozco (importantes para la defensa). El prototipo tiene dos
+limites conscientes: (1) usa SQLite, que en Render es efimero -la base de datos
+se recrea y se vuelve a sembrar en cada despliegue-; para produccion se migraria
+a PostgreSQL. (2) El escalamiento automatico funciona "bajo demanda" mediante un
+endpoint, tal como pide la regla 5; para que fuera totalmente automatico habria
+que agregar un proceso en segundo plano (BackgroundService) con un temporizador.
+
+Lo que aprendi. Aprendi que la calidad de la respuesta de una IA depende
+directamente de la calidad del prompt: entre mas preciso el requisito, mejor el
+resultado. Tambien reforce la importancia de verificar siempre lo que la IA
+produce (compilar, ejecutar y probar) antes de darlo por bueno, y de entender el
+codigo para poder explicarlo y mantenerlo.
+
+------------------------------------------------------------------------------
+6. CONCLUSION
+------------------------------------------------------------------------------
+La inteligencia artificial fue una herramienta de productividad muy util para
+este proyecto: acelero la redaccion de historias de usuario, la generacion del
+codigo y la documentacion, y me apoyo en el despliegue. Sin embargo, el analisis
+del problema, la definicion de los requisitos, la verificacion de los resultados
+y las correcciones fueron responsabilidad mia. El uso de IA fue asistido y
+supervisado, no automatico.
+
+------------------------------------------------------------------------------
+ANEXO A - PROMPT TECNICO COMPLETO ENVIADO A CLAUDE CODE
+------------------------------------------------------------------------------
+Actua como un desarrollador senior de .NET. Quiero que desarrolles desde cero un
+PROTOTIPO de API REST para la gestion de incidentes de red de la empresa
+"NetGuard GT" (proveedor de telecomunicaciones).
+
+STACK TECNICO: C# .NET 8, ASP.NET Core Web API, EF Core con SQLite, Swagger,
+xUnit, estructura en capas Models/DTOs/Data/Services/Controllers con la logica de
+negocio en los Services.
+
+CONTEXTO: 45 sitios, 12 tecnicos (fibra optica, microondas, sistemas electricos),
+~80 incidentes mensuales; problemas con Excel y llamadas.
+
+MODELOS: Tecnico, Incidente, HistorialEstado + enums Severidad, EstadoIncidente,
+Especialidad.
+
+8 REGLAS DE NEGOCIO: SLA por severidad; maximo 3 activos por tecnico; flujo
+unidireccional de estados; reasignacion/liberacion; escalamiento automatico de
+Critico/Urgente con +2h en Registrado; especialidad coincidente; historial de
+cambios; reporte de cumplimiento de SLA.
+
+11 ENDPOINTS sobre /api/incidentes, /api/reportes/sla y /api/tecnicos, con DTOs y
+codigos HTTP correctos (201, 200, 404, 422).
+
+DATOS DE PRUEBA: 12 tecnicos y 5 incidentes sembrados al iniciar.
+
+PRUEBAS xUnit cubriendo SLA, limite de 3, especialidad, flujo de estados,
+escalamiento, historial y reporte de SLA.
+
+ENTREGABLES: README.md, Dockerfile listo para Render leyendo la variable PORT,
+BD que se crea sola.
+
+INSTRUCCIONES: mostrar la estructura primero, crear el proyecto paso a paso
+explicando decisiones, y al final ejecutar dotnet build y dotnet test para
+verificar.
+
+(El prompt completo y sin resumir se conserva en el historial de la conversacion
+con la IA, disponible para revision.)
+
+==============================================================================

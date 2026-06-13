@@ -1,0 +1,261 @@
+HISTORIAS DE USUARIO
+Sistema de Gestión de Incidentes de Red "NetGuard GT"
+
+==============================================================================
+
+Proyecto:     API REST de Gestión de Incidentes de Red
+Empresa:      NetGuard GT (Proveedor de Telecomunicaciones)
+Curso:        Análisis de Sistemas I - Examen Final
+Repositorio:  0907-23-8082_ANALISISB2026FINAL
+Tecnología:   C# / ASP.NET Core (API REST)
+
+------------------------------------------------------------------------------
+1. CONTEXTO DEL NEGOCIO
+------------------------------------------------------------------------------
+NetGuard GT gestiona una red con 45 sitios de red (torres, antenas, nodos,
+POP), 12 técnicos con especialidades (fibra óptica, microondas, sistemas
+eléctricos) y un promedio de 80 incidentes mensuales. Hoy todo se maneja con
+Excel y llamadas, lo que provoca pérdida de información, incidentes vencidos
+sin seguimiento, dificultad para reportar el cumplimiento de SLA y técnicos
+sobrecargados. El sistema busca digitalizar y automatizar la gestión de
+incidentes.
+
+------------------------------------------------------------------------------
+2. DEFINICIONES BASE
+------------------------------------------------------------------------------
+
+Niveles de severidad y SLA (tiempo máximo de resolución):
+(Los tiempos son una propuesta; ajústalos a los que indique el catedrático.)
+
+   Severidad    SLA (tiempo máximo de resolución)
+   ---------    ---------------------------------
+   Crítico      1 hora
+   Urgente      2 horas
+   Alta         4 horas
+   Media        8 horas
+   Baja         24 horas
+
+Estados del incidente (flujo unidireccional):
+   Registrado -> Asignado -> En progreso -> Resuelto -> Cerrado
+   Estado especial: Escalado (solo para Crítico/Urgente sin atender).
+
+Especialidades técnicas:
+   Fibra óptica, Microondas, Sistemas eléctricos.
+   Cada tipo de incidente requiere una especialidad.
+
+Modelos principales (referencia para el prototipo):
+   - Incidente: datos del incidente, severidad, estado, técnico, fechas.
+   - Técnico: datos del técnico, especialidad, carga de trabajo.
+   - HistorialEstado: registro de cada cambio de estado del incidente.
+
+------------------------------------------------------------------------------
+3. HISTORIAS DE USUARIO
+------------------------------------------------------------------------------
+Formato: Como [rol] quiero [funcionalidad] para [beneficio].
+Cada historia incluye criterios de aceptación medibles, prioridad y la regla
+de negocio que cubre.
+
+HU-01 - REGISTRAR UN INCIDENTE DE RED
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como operador del centro de monitoreo (NOC)
+quiero registrar un nuevo incidente indicando sitio, tipo, severidad y descripción
+para que quede documentado y no se pierda información cuando un técnico no
+reporta a tiempo.
+
+Prioridad: Alta | Estimación: 3 pts | Regla cubierta: Base / Problema 1
+
+Criterios de aceptación:
+  * Campos obligatorios: sitio de red, tipo de incidente, severidad y descripción.
+  * El incidente se crea siempre con estado inicial "Registrado".
+  * El sistema asigna un ID único y registra la fecha/hora de reporte automáticamente.
+  * La severidad debe ser una de: Crítico, Urgente, Alta, Media, Baja; otro valor
+    devuelve error 400.
+  * Respuesta exitosa: HTTP 201 con el objeto del incidente creado.
+
+HU-02 - CALCULAR EL SLA SEGÚN LA SEVERIDAD
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como administrador del sistema
+quiero que cada incidente reciba automáticamente una fecha límite según su severidad
+para poder medir después el cumplimiento del SLA.
+
+Prioridad: Alta | Estimación: 2 pts | Regla cubierta: 1
+
+Criterios de aceptación:
+  * Al crear el incidente se calcula fechaLimite = fechaReporte + SLA(severidad).
+  * La tabla de SLA está centralizada (Crítico=1h, Urgente=2h, Alta=4h, Media=8h,
+    Baja=24h).
+  * La respuesta del incidente incluye la fechaLimite calculada.
+  * Si se cambia la severidad antes de asignar, la fechaLimite se recalcula.
+
+HU-03 - ASIGNAR UN INCIDENTE A UN TÉCNICO
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como supervisor de operaciones
+quiero asignar un incidente a un técnico disponible
+para que sea atendido oportunamente.
+
+Prioridad: Alta | Estimación: 3 pts | Regla cubierta: Base / 2 / 6
+
+Criterios de aceptación:
+  * Solo se puede asignar un incidente que esté en estado "Registrado" o "Escalado".
+  * Al asignar correctamente, el incidente pasa a estado "Asignado" y guarda el técnico.
+  * La asignación valida las reglas de máximo de incidentes activos (HU-04) y
+    especialidad (HU-05).
+  * Se registra el cambio en el historial (HU-09).
+  * Respuesta: HTTP 200 con el incidente actualizado; si falla una validación,
+    HTTP 422 con el motivo.
+
+HU-04 - LIMITAR A 3 INCIDENTES ACTIVOS POR TÉCNICO
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como sistema
+quiero impedir que un técnico tenga más de 3 incidentes activos (no cerrados) al
+mismo tiempo
+para evitar la sobrecarga de unos mientras otros tienen poca carga.
+
+Prioridad: Alta | Estimación: 3 pts | Regla cubierta: 2
+
+Criterios de aceptación:
+  * Se cuentan como activos los incidentes del técnico cuyo estado no sea Cerrado.
+  * Si el técnico ya tiene 3 activos, la asignación o reasignación se rechaza con
+    HTTP 409/422 y mensaje claro.
+  * Los incidentes en estado Cerrado no se cuentan.
+  * Existe un endpoint para consultar cuántos activos tiene un técnico (apoya HU-12).
+
+HU-05 - VALIDAR ESPECIALIDAD COINCIDENTE AL ASIGNAR
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como sistema
+quiero permitir asignar únicamente técnicos cuya especialidad coincida con el tipo
+de incidente
+para garantizar que la persona asignada tiene la competencia adecuada.
+
+Prioridad: Alta | Estimación: 2 pts | Regla cubierta: 6
+
+Criterios de aceptación:
+  * Cada tipo de incidente está asociado a una especialidad requerida (fibra óptica /
+    microondas / sistemas eléctricos).
+  * Si la especialidad del técnico no coincide con la requerida, se rechaza con
+    HTTP 422 y mensaje explicativo.
+  * La validación aplica tanto en la asignación inicial como en la reasignación.
+
+HU-06 - AVANZAR EL ESTADO DEL INCIDENTE RESPETANDO EL FLUJO
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como técnico
+quiero cambiar el estado del incidente siguiendo el flujo permitido
+para reflejar correctamente el avance de la atención.
+
+Prioridad: Alta | Estimación: 3 pts | Regla cubierta: 3
+
+Criterios de aceptación:
+  * El estado solo puede avanzar en orden:
+    Registrado -> Asignado -> En progreso -> Resuelto -> Cerrado.
+  * No se permite retroceder ni saltar estados; un intento inválido devuelve
+    HTTP 422 con mensaje.
+  * Al pasar a Resuelto se registra la fechaResolucion (usada para el reporte de SLA).
+  * Cada cambio de estado queda guardado en el historial (HU-09).
+
+HU-07 - REASIGNAR O LIBERAR UN INCIDENTE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como técnico o supervisor
+quiero reasignar un incidente a otro técnico o liberarlo
+para balancear la carga de trabajo del equipo.
+
+Prioridad: Media | Estimación: 3 pts | Regla cubierta: 4
+
+Criterios de aceptación:
+  * Un incidente puede reasignarse a otro técnico en cualquier momento mientras no
+    esté Cerrado.
+  * El técnico anterior puede liberar el incidente: queda sin técnico y disponible
+    para que otro lo tome.
+  * La reasignación al nuevo técnico vuelve a validar el máximo de 3 activos (HU-04)
+    y la especialidad (HU-05).
+  * Cada reasignación o liberación se registra en el historial indicando técnico
+    anterior y nuevo.
+
+HU-08 - ESCALAR AUTOMÁTICAMENTE INCIDENTES CRÍTICO/URGENTE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como sistema
+quiero marcar como Escalado los incidentes Crítico o Urgente que lleven más de 2
+horas sin ser atendidos
+para que reciban atención prioritaria y no queden vencidos sin seguimiento.
+
+Prioridad: Alta | Estimación: 5 pts | Regla cubierta: 5
+
+Criterios de aceptación:
+  * Condición: severidad en {Crítico, Urgente} Y estado = Registrado Y
+    (ahora - fechaReporte) > 2 horas.
+  * Al cumplirse, el estado cambia a Escalado automáticamente.
+  * El cambio se registra en el historial con motivo "Escalamiento automático".
+  * Existe un endpoint/proceso que evalúa y aplica el escalamiento (verificación
+    manual o programada).
+
+HU-09 - CONSULTAR EL HISTORIAL DE CAMBIOS DE ESTADO
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como supervisor
+quiero ver el historial completo de cambios de estado de un incidente
+para tener trazabilidad y auditar la atención.
+
+Prioridad: Media | Estimación: 3 pts | Regla cubierta: 7
+
+Criterios de aceptación:
+  * Cada registro guarda: estado anterior, estado nuevo, fecha/hora, técnico/usuario
+    responsable y motivo.
+  * Endpoint GET que devuelve el historial de un incidente ordenado cronológicamente.
+  * El historial es solo de lectura (no se puede editar ni borrar).
+
+HU-10 - CONSULTAR Y FILTRAR INCIDENTES
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como usuario del sistema
+quiero listar y filtrar los incidentes por estado, severidad, técnico o sitio
+para dar seguimiento ágil a la operación.
+
+Prioridad: Media | Estimación: 2 pts | Regla cubierta: Base / 8
+
+Criterios de aceptación:
+  * GET /incidentes admite filtros opcionales por estado, severidad, técnico y sitio.
+  * GET /incidentes/{id} devuelve el detalle de un incidente o HTTP 404 si no existe.
+  * La respuesta incluye estado, severidad, técnico asignado y fecha límite de SLA.
+
+HU-11 - GENERAR REPORTE DE CUMPLIMIENTO DE SLA
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como gerente de operaciones
+quiero un reporte de incidentes que cumplieron o incumplieron su SLA
+para evaluar el desempeño y la calidad del servicio.
+
+Prioridad: Media | Estimación: 5 pts | Regla cubierta: 8
+
+Criterios de aceptación:
+  * Por cada incidente resuelto se determina si cumplió:
+    fechaResolucion <= fechaLimite.
+  * El reporte muestra métricas: total, cumplidos, incumplidos y % de cumplimiento.
+  * Se puede agrupar por severidad y/o por técnico.
+  * Los incidentes aún abiertos cuya fechaLimite ya pasó se marcan como vencidos.
+
+HU-12 - CONSULTAR LA CARGA DE TRABAJO DE LOS TÉCNICOS
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Como supervisor
+quiero ver cuántos incidentes activos tiene cada técnico y si puede recibir más
+para distribuir el trabajo de forma equilibrada.
+
+Prioridad: Media | Estimación: 2 pts | Regla cubierta: 2
+
+Criterios de aceptación:
+  * GET /tecnicos/carga lista cada técnico con su conteo de incidentes activos.
+  * Indica disponibilidad: disponible si tiene menos de 3 activos, lleno si tiene 3.
+  * Permite filtrar por especialidad.
+
+------------------------------------------------------------------------------
+4. MATRIZ DE COBERTURA (reglas de negocio -> historias)
+------------------------------------------------------------------------------
+
+   #   Regla de negocio del enunciado                              Historia(s)
+   --  ----------------------------------------------------------  -----------
+   1   Tiempo máximo de resolución depende de la severidad         HU-02
+   2   Máximo 3 incidentes activos por técnico                     HU-04, HU-12
+   3   Estados solo avanzan en una dirección                       HU-06
+   4   Reasignación / liberación de incidente                      HU-07
+   5   Escalamiento automático (Crítico/Urgente > 2h Registrado)   HU-08
+   6   Solo técnicos con especialidad coincidente                  HU-05
+   7   Historial de cambios de estado                              HU-09
+   8   Reportes de incidentes                                      HU-10, HU-11
+   -   Registro y consulta base                                    HU-01, HU-03, HU-10
+
+==============================================================================
